@@ -26,12 +26,14 @@ const char* fragmentShaderSource =
 
 float vertices[] = {
     -0.5f, -0.5f, 0.0f,
-     0.5f,  0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f,
-    
-    -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
      0.5f,  0.5f, 0.0f
+};
+
+unsigned int indices[] = {
+    0,1,2,
+    1,3,2
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -84,12 +86,18 @@ int main(void)
     
     unsigned int VAO;
     unsigned int VBO;
-
+    unsigned int IBO;
+    
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &IBO);
+    
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -103,7 +111,8 @@ int main(void)
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, std::size(indices), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
