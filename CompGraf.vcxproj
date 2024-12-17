@@ -162,9 +162,12 @@
   <ItemGroup>
     <ClCompile Include="CompGraf.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dependencies\lib\glfw3.lib" />
+    <Content Include="Images\Image.jpg" />
+    <Content Include="Images\Monkey.png" />
     <Content Include="Shaders\fragment.glsl" />
     <Content Include="Shaders\vertex.glsl" />
   </ItemGroup>
@@ -173,6 +176,7 @@
     <ClInclude Include="Dependencies\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\include\GLFW\glfw3native.h" />
     <ClInclude Include="Dependencies\include\KHR\khrplatform.h" />
+    <ClInclude Include="Dependencies\include\STB\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
