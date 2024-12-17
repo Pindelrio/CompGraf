@@ -1,4 +1,7 @@
 #include <iostream>
+#include <vector>
+#include <windows.h>
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -6,8 +9,15 @@
 const int width = 800;
 const int height = 600;
 
-int customColorId; 
+int customColorId;
 
+float colors[] ={
+    1.0f, 0.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 1.0f
+
+};
 const char* vertexShaderSource =
 "#version 330 core                                  \n"
 "layout (location = 0) in vec3 aPos;                \n"
@@ -27,16 +37,28 @@ const char* fragmentShaderSource =
 "}                                                  \n\0";
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f,
-     0.5f,  0.5f, 0.0f
+     0.0f, 0.0f, 0.0f,
+    -0.5f, 0.0f, 0.0f,
+     0.0f, 0.5f, 0.0f,
+     0.5f, 0.0f, 0.0f,
+     0.0f,-0.5f, 0.0f,
 };
 
 unsigned int indices[] = {
     0,1,2,
-    1,3,2
+    0,2,3,
+    0,1,4,
+    0,4,3
 };
+
+void Draw(int& i, int& j)
+{
+    glUniform4f(customColorId, colors[i+0], colors[i+1], colors[i+2], colors[i+3]);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (int*)NULL + (3 * j));
+    i=i+4;
+    if (i>=16)
+        i=0;
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -108,7 +130,7 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    
+    int i = 0;
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -116,14 +138,20 @@ int main(void)
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         
-        glUniform4f(customColorId, 1.0f, 0.0f, 0.0f, 1.0f);
-        glDrawElements(GL_TRIANGLES, std::size(indices)/2, GL_UNSIGNED_INT, 0);
-
-        glUniform4f(customColorId, 1.0f, 1.0f, 0.0f, 1.0f);
-        glDrawElements(GL_TRIANGLES, std::size(indices)/2, GL_UNSIGNED_INT, (int *)NULL +3);
-        
+        int j=0;
+        while (j<=3)
+        {
+            Draw(i, j);
+            j++;
+        }
+        i=i+4;
+        if (i>=16)
+            i=0;
+    
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        Sleep(500);
     }
 
     glDeleteVertexArrays(1, &VAO);
