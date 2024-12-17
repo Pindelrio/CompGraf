@@ -6,6 +6,8 @@
 const int width = 800;
 const int height = 600;
 
+int customColorId; 
+
 const char* vertexShaderSource =
 "#version 330 core                                  \n"
 "layout (location = 0) in vec3 aPos;                \n"
@@ -18,10 +20,10 @@ const char* vertexShaderSource =
 const char* fragmentShaderSource =
 "#version 330 core                                  \n"
 "out vec4 FragColor;                                \n"
-"                                                   \n"
+"uniform vec4 alternativeColor;                     \n"
 "void main()                                        \n"
 "{                                                  \n"
-"   FragColor = vec4(0.1f,0.5f,0.2f,1.0f);          \n"
+"   FragColor = alternativeColor;                   \n"
 "}                                                  \n\0";
 
 float vertices[] = {
@@ -81,6 +83,8 @@ int main(void)
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
+    customColorId = glGetUniformLocation(shaderProgram, "alternativeColor");
+    
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     
@@ -103,7 +107,7 @@ int main(void)
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -111,9 +115,13 @@ int main(void)
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, std::size(indices), GL_UNSIGNED_INT, 0);
+        
+        glUniform4f(customColorId, 1.0f, 0.0f, 0.0f, 1.0f);
+        glDrawElements(GL_TRIANGLES, std::size(indices)/2, GL_UNSIGNED_INT, 0);
 
+        glUniform4f(customColorId, 1.0f, 1.0f, 0.0f, 1.0f);
+        glDrawElements(GL_TRIANGLES, std::size(indices)/2, GL_UNSIGNED_INT, (int *)NULL +3);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
