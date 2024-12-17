@@ -26,8 +26,12 @@ const char* fragmentShaderSource =
 
 float vertices[] = {
     -0.5f, -0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+    
+    -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+     0.5f,  0.5f, 0.0f
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -90,6 +94,8 @@ int main(void)
     glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -97,7 +103,7 @@ int main(void)
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
