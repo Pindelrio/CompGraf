@@ -1,5 +1,6 @@
+#include <fstream>
 #include <iostream>
-#include <vector>
+#include <sstream>
 #include <windows.h>
 
 #include "glad/glad.h"
@@ -11,54 +12,37 @@ const int height = 600;
 
 int customColorId;
 
-float colors[] ={
-    1.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 1.0f
-
-};
 const char* vertexShaderSource =
-"#version 330 core                                  \n"
-"layout (location = 0) in vec3 aPos;                \n"
-"                                                   \n"
-"void main()                                        \n"
-"{                                                  \n"
-"   gl_Position = vec4(aPos.x,aPos.y,aPos.z,1.0);   \n"
-"}                                                  \n\0";
+"#version 330 core\n"
+"\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 ourColor;\n"
+"\n"
+"void main()\n"
+"{\n"
+"    gl_Position = vec4(aPos,1.0);\n"
+"    ourColor = aColor;\n"
+"}\n\0";
 
 const char* fragmentShaderSource =
-"#version 330 core                                  \n"
-"out vec4 FragColor;                                \n"
-"uniform vec4 alternativeColor;                     \n"
-"void main()                                        \n"
-"{                                                  \n"
-"   FragColor = alternativeColor;                   \n"
-"}                                                  \n\0";
+"#version 330 core\n"
+"\n"
+"out vec4 FragColor;\n"
+"in vec3 ourColor;\n"
+"\n"
+"void main()\n"
+"{\n"
+"    FragColor = vec4(ourColor, 1.0f);\n"
+"};\n\0";
+
+std::string ReadTextFile(const std::string& fileName);
 
 float vertices[] = {
-     0.0f, 0.0f, 0.0f,
-    -0.5f, 0.0f, 0.0f,
-     0.0f, 0.5f, 0.0f,
-     0.5f, 0.0f, 0.0f,
-     0.0f,-0.5f, 0.0f,
+     0.0f, 0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   
+    -0.5f,-0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   
+     0.5f,-0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   
 };
-
-unsigned int indices[] = {
-    0,1,2,
-    0,2,3,
-    0,1,4,
-    0,4,3
-};
-
-void Draw(int& i, int& j)
-{
-    glUniform4f(customColorId, colors[i+0], colors[i+1], colors[i+2], colors[i+3]);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (int*)NULL + (3 * j));
-    i=i+4;
-    if (i>=16)
-        i=0;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -122,31 +106,28 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    float stride = 6 * sizeof(float);
 
-    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    int i = 0;
+    
     while (!glfwWindowShouldClose(window))
     {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         
-        int j=0;
-        while (j<=3)
-        {
-            Draw(i, j);
-            j++;
-        }
-        i=i+4;
-        if (i>=16)
-            i=0;
+        //glUniform4f(customColorId, 1.0f, 0.0f, 0.0f, 1.0f);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
     
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -160,4 +141,15 @@ int main(void)
     
     glfwTerminate();
     return 0;
+}
+
+std::string ReadTextFile(const std::string& fileName)
+{
+    std::ifstream file(fileName);
+    if (!file.is_open()) return "";
+    
+    std::stringstream stringbuffer;
+    stringbuffer << file.rdbuf();
+    file.close();
+    return stringbuffer.str();
 }

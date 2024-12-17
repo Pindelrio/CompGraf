@@ -165,6 +165,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dependencies\lib\glfw3.lib" />
+    <Content Include="Shaders\fragment.glsl" />
+    <Content Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\include\glad\glad.h" />
