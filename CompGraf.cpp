@@ -5,7 +5,9 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "stb/stb_image.h"
-
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 const int width = 800;
 const int height = 600;
@@ -21,10 +23,13 @@ const char* vertexShaderSource =
 "                                       \n"
 "out vec3 ourColor;                     \n"
 "out vec2 texCoord;                     \n"
+"uniform mat4 model;                    \n"
+"uniform mat4 view;                     \n"
+"uniform mat4 projection;               \n"
 "                                       \n"
 "void main()                            \n"
 "{                                      \n"
-"    gl_Position = vec4(aPos,1.0);      \n"
+"    gl_Position = projection * view * model * vec4(aPos,1.0);  \n"
 "    ourColor = aColor;                 \n"
 "    texCoord = aTex;                   \n"
 "}                                      \n\0";
@@ -43,49 +48,20 @@ const char* fragmentShaderSource =
 
 
 float vertices[] = {
-    -0.6f, 0.1f, 0.0f,//A 0
-    -0.5f, 0.3f, 0.0f,//B 1
-    -0.2f, 0.5f, 0.0f,//C 2
-    0.2f, 0.5f, 0.0f, //D 3
-    0.5f, 0.3f, 0.0f, //E 4
-    0.6f, 0.1f, 0.0f, //F 5
-    0.0f, -0.2f, 0.0f,//G 6 //Morro
-    -0.5f, 0.6f, 0.0f,//H 7
-    0.5f, 0.6f, 0.0f, //I 8
-    -0.2f, 0.1f, 0.0f,//J 9
-    0.2f, 0.1f, 0.0f, //K 10
-    -0.3f, 0.0f, 0.0f,//L 11
-    0.3f, 0.0f, 0.0f, //M 12
-
-    -0.11f,0.2f,0.0f, //N 13
-    0.11f,0.2f,0.0f, //O 14
-
-    -0.08f,0.1f,0.0f, //P 15
-    0.08f,0.1f,0.0f    //Q 16
+    //Coordenades           //Color            //Textura
+    -0.5f, 0.0f,  0.5f,     0.5f,  0.0f,  0.5f,	0.0f, 0.0f,
+    -0.5f, 0.0f, -0.5f,     0.0f,  1.0f,  0.0f,	1.0f, 0.0f,
+     0.5f, 0.0f, -0.5f,     0.0f,  0.5f,  0.5f,	0.0f, 0.0f,
+     0.5f, 0.0f,  0.5f,     1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
+     0.0f, 0.8f,  0.0f,     0.0f,  0.5f,  0.5f,	0.5f, 1.0f
 };
 unsigned int indices[] = {
-    7,1,2, //ORELLA E
-    3,8,4,
-    0,1,11, //GALTA
-    5,4,12,
-    11,6,9,
-    6,10,12,
-
-    1,2,9,
-    3,4,10,
-
-    1,11,9,
-    10,4,12,
-
-    2,3,6,
-    2,9,13,
-    3,10,14,
-
-    2,9,13,
-    9,15,6,
-
-    3,14,10,
-    10,16,6
+    0, 1, 2,
+    0, 2, 3,
+    0, 1, 4,
+    1, 2, 4,
+    2, 3, 4,
+    3, 0, 4
 };
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -147,18 +123,18 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
-    //GLsizei stride = 8 * sizeof(float);
-    // void* offsetColor = (void*)(3 * sizeof(float));
-    // void* offsetTexture = (void*)(6 * sizeof(float));
+    GLsizei stride = 8 * sizeof(float);
+    void* offsetColor = (void*)(3 * sizeof(float));
+    void* offsetTexture = (void*)(6 * sizeof(float));
 
-    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
 
-    // glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, offsetColor);
-    // glEnableVertexAttribArray(1);
-    //
-    // glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
-    // glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, offsetColor);
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
+    glEnableVertexAttribArray(2);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -167,8 +143,8 @@ int main(void)
     // Texturas --------------------------------------------------------------------------------------------------------
     int width, height, pixelSize;
 
-    //stbi_set_flip_vertically_on_load(true);
-    unsigned char* image = stbi_load("Images/Monkey.png", &width, &height, &pixelSize, 0);
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* image = stbi_load("Images/Image.jpg", &width, &height, &pixelSize, 0);
 
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -201,17 +177,42 @@ int main(void)
     GLuint texUniform = glGetUniformLocation(shaderProgram, "tex0");
     glUseProgram(shaderProgram);
     glUniform1i(texUniform, 0);
+
+    glEnable(GL_DEPTH_TEST);
     
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glUseProgram(shaderProgram);
 
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);        
+
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+
+        //Cambiar rotación a DeltaTime
+        model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, -1.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -2.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
+
+        //Configuración de la camara
+        projection = glm::perspective(glm::radians(45.0f),(float)width/(float)height,0.1f,100.0f);
         
-        glUseProgram(shaderProgram);
+        GLint modelUniform = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(model));
+
+        GLint viewUniform = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(view));
+
+        GLint projectionUniform = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, glm::value_ptr(projection));
+        
         glBindVertexArray(VAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 15);
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 0, GL_UNSIGNED_INT, (void*)(5 * sizeof(GLuint)));
     
         glfwSwapBuffers(window);
         glfwPollEvents();
