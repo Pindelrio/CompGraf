@@ -49,19 +49,66 @@ const char* fragmentShaderSource =
 
 float vertices[] = {
     //Coordenades           //Color            //Textura
-    -0.5f, 0.0f,  0.5f,     0.5f,  0.0f,  0.5f,	0.0f, 0.0f,
-    -0.5f, 0.0f, -0.5f,     0.0f,  1.0f,  0.0f,	1.0f, 0.0f,
-     0.5f, 0.0f, -0.5f,     0.0f,  0.5f,  0.5f,	0.0f, 0.0f,
-     0.5f, 0.0f,  0.5f,     1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
-     0.0f, 0.8f,  0.0f,     0.0f,  0.5f,  0.5f,	0.5f, 1.0f
+    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, -1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 1.0f,
+  
+    -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f,-1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f,-1.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 1.0f,
+  
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f,-1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f,-1.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+  
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, -1.0f,
+  
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,-1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f,-1.0f,
+     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f,-1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f,-1.0f,
+     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,
 };
 unsigned int indices[] = {
     0, 1, 2,
-    0, 2, 3,
-    0, 1, 4,
-    1, 2, 4,
-    2, 3, 4,
-    3, 0, 4
+    3, 4, 5,
+
+    6, 7, 8,
+    9, 10, 11,
+    
+    12,13,14,
+    15,16,17,
+    
+    18,19,20,
+    21,22,23,
+    
+    24,25,26,
+    27,28,29,
+    
+    30,31,32,
+    33,34,35,
 };
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -143,7 +190,7 @@ int main(void)
     // Texturas --------------------------------------------------------------------------------------------------------
     int width, height, pixelSize;
 
-    stbi_set_flip_vertically_on_load(true);
+    //stbi_set_flip_vertically_on_load(true);
     unsigned char* image = stbi_load("Images/Image.jpg", &width, &height, &pixelSize, 0);
 
     GLuint textureID;
@@ -195,7 +242,7 @@ int main(void)
 
         //Cambiar rotación a DeltaTime
         model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, -1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -2.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
+        view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -3.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
 
         //Configuración de la camara
         projection = glm::perspective(glm::radians(45.0f),(float)width/(float)height,0.1f,100.0f);
@@ -212,7 +259,6 @@ int main(void)
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 15);
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-        //glDrawElements(GL_TRIANGLES, 0, GL_UNSIGNED_INT, (void*)(5 * sizeof(GLuint)));
     
         glfwSwapBuffers(window);
         glfwPollEvents();
