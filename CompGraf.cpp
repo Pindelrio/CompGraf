@@ -43,13 +43,15 @@ const char* fragmentShaderSource =
 
 
 float vertices[] = {
-    //Coordenadas       //Color             //Textura (256x256 millor)
-     0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.5f, 0.0f, 
-    -0.5f,-0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,    
-     0.5f,-0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,    
+    //Coordenades      //Color            //Textura
+    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Top Left
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, //Down Left
+     0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, //Down Right
+     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, //Top Right 
 };
-float indices[]={
-    0,1,2
+unsigned int indices[] = {
+    0,1,2,
+    0,2,3
 };
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -175,7 +177,7 @@ int main(void)
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
     
         glfwSwapBuffers(window);
         glfwPollEvents();
