@@ -43,15 +43,49 @@ const char* fragmentShaderSource =
 
 
 float vertices[] = {
-    //Coordenades      //Color            //Textura
-    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, //Top Left
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, //Down Left
-     0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, //Down Right
-     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, //Top Right 
+    -0.6f, 0.1f, 0.0f,//A 0
+    -0.5f, 0.3f, 0.0f,//B 1
+    -0.2f, 0.5f, 0.0f,//C 2
+    0.2f, 0.5f, 0.0f, //D 3
+    0.5f, 0.3f, 0.0f, //E 4
+    0.6f, 0.1f, 0.0f, //F 5
+    0.0f, -0.2f, 0.0f,//G 6 //Morro
+    -0.5f, 0.6f, 0.0f,//H 7
+    0.5f, 0.6f, 0.0f, //I 8
+    -0.2f, 0.1f, 0.0f,//J 9
+    0.2f, 0.1f, 0.0f, //K 10
+    -0.3f, 0.0f, 0.0f,//L 11
+    0.3f, 0.0f, 0.0f, //M 12
+
+    -0.11f,0.2f,0.0f, //N 13
+    0.11f,0.2f,0.0f, //O 14
+
+    -0.08f,0.1f,0.0f, //P 15
+    0.08f,0.1f,0.0f    //Q 16
 };
 unsigned int indices[] = {
-    0,1,2,
-    0,2,3
+    7,1,2, //ORELLA E
+    3,8,4,
+    0,1,11, //GALTA
+    5,4,12,
+    11,6,9,
+    6,10,12,
+
+    1,2,9,
+    3,4,10,
+
+    1,11,9,
+    10,4,12,
+
+    2,3,6,
+    2,9,13,
+    3,10,14,
+
+    2,9,13,
+    9,15,6,
+
+    3,14,10,
+    10,16,6
 };
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -113,18 +147,18 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
-    GLsizei stride = 8 * sizeof(float);
-    void* offsetColor = (void*)(3 * sizeof(float));
-    void* offsetTexture = (void*)(6 * sizeof(float));
+    //GLsizei stride = 8 * sizeof(float);
+    // void* offsetColor = (void*)(3 * sizeof(float));
+    // void* offsetTexture = (void*)(6 * sizeof(float));
 
-    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, offsetColor);
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
-    glEnableVertexAttribArray(2);
+    // glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, offsetColor);
+    // glEnableVertexAttribArray(1);
+    //
+    // glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
+    // glEnableVertexAttribArray(2);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
