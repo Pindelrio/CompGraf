@@ -8,6 +8,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "Camera.h"
 
 const int width = 800;
 const int height = 600;
@@ -26,10 +27,11 @@ const char* vertexShaderSource =
 "uniform mat4 model;                    \n"
 "uniform mat4 view;                     \n"
 "uniform mat4 projection;               \n"
+"uniform mat4 cameraMatrix;             \n"
 "                                       \n"
 "void main()                            \n"
 "{                                      \n"
-"    gl_Position = projection * view * model * vec4(aPos,1.0);  \n"
+"    gl_Position = cameraMatrix * vec4(aPos,1.0);  \n"
 "    ourColor = aColor;                 \n"
 "    texCoord = aTex;                   \n"
 "}                                      \n\0";
@@ -49,70 +51,77 @@ const char* fragmentShaderSource =
 
 float vertices[] = {
     //Coordenades           //Color            //Textura
-    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, -1.0f, 0.0f,
+    //Fons
+    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f,-1.0f, 0.0f,
      0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f,-1.0f,
      0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 1.0f, 0.0f,
     -0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
     -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 1.0f,
-  
+    //Frontal
     -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f,-1.0f, 0.0f,
      0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
      0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f,-1.0f,
      0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 1.0f, 0.0f,
     -0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
     -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 1.0f,
-  
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f,-1.0f, 0.0f,
+    //Esquerra
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
     -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f,-1.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,-1.0f, 0.0f,
     -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-  
+    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f,-1.0f,
+    //Dreta
      0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
      0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f,
      0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
      0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, -1.0f,
-  
+    //Base
     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,-1.0f, 0.0f,
      0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
      0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f,-1.0f,
      0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
     -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f,-1.0f, 0.0f,
+    //Sostre
+    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,
      0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f,-1.0f,
-     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f,-1.0f, 0.0f,
     -0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f,-1.0f,
 };
 unsigned int indices[] = {
-    0, 1, 2,
+    0, 1, 2,    //Fons
     3, 4, 5,
 
-    6, 7, 8,
+    6, 7, 8,    //Frontal
     9, 10, 11,
     
-    12,13,14,
+    12,13,14,   //Esquerra
     15,16,17,
     
-    18,19,20,
+    18,19,20,   //Dreta
     21,22,23,
     
-    24,25,26,
+    24,25,26,   //Base
     27,28,29,
     
-    30,31,32,
+    30,31,32,   //Sostre
     33,34,35,
 };
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 int main(void)
@@ -226,40 +235,45 @@ int main(void)
     glUniform1i(texUniform, 0);
 
     glEnable(GL_DEPTH_TEST);
+
+    Camera ourCamera(width,height,glm::vec3(0.0f,0.0f,2.0f));
     
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glUseProgram(shaderProgram);
+        glUseProgram(shaderProgram);
 
+        ourCamera.CameraMatrix(45.f,0.1f,100.0f, shaderProgram, "cameraMatrix");
+        ourCamera.CameraInput(window);
+
+        // glm::mat4 model = glm::mat4(1.0f);
+        // glm::mat4 view = glm::mat4(1.0f);
+        // glm::mat4 projection = glm::mat4(1.0f);
+        //
+        // //Cambiar rotación a DeltaTime
+        // model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, -1.0f, 0.0f));
+        // view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -3.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
+        //
+        // //Configuración de la camara
+        // projection = glm::perspective(glm::radians(45.0f),(float)width/(float)height,0.1f,100.0f);
+        //
+        // GLint modelUniform = glGetUniformLocation(shaderProgram, "model");
+        // glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(model));
+        //
+        // GLint viewUniform = glGetUniformLocation(shaderProgram, "view");
+        // glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(view));
+        //
+        // GLint projectionUniform = glGetUniformLocation(shaderProgram, "projection");
+        // glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, glm::value_ptr(projection));
+        
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);        
-
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-
-        //Cambiar rotación a DeltaTime
-        model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, -1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -3.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
-
-        //Configuración de la camara
-        projection = glm::perspective(glm::radians(45.0f),(float)width/(float)height,0.1f,100.0f);
-        
-        GLint modelUniform = glGetUniformLocation(shaderProgram, "model");
-        glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(model));
-
-        GLint viewUniform = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(view));
-
-        GLint projectionUniform = glGetUniformLocation(shaderProgram, "projection");
-        glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, glm::value_ptr(projection));
         
         glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 15);
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
     
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

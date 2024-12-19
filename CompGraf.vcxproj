@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CompGraf.cpp" />
     <ClCompile Include="Dependencies\include\glm\detail\glm.cpp" />
     <ClCompile Include="glad.c" />
@@ -174,6 +175,7 @@
     <Content Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Dependencies\include\glad\glad.h" />
     <ClInclude Include="Dependencies\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\include\GLFW\glfw3native.h" />
