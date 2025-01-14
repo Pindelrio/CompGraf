@@ -16,8 +16,11 @@ public:
     int width, height;
 
     float speed = 0.1f;
+    float sensitivity = 0.1f;
 
     Camera(int width, int height, glm::vec3 positionCamera);
     void CameraMatrix(float FOV, float nearPlane, float farPlane, unsigned int shaderProgramId, const char* uniform);
+    
+    void RotateCamera(GLFWwindow* window);
     void CameraInput(GLFWwindow* window);
 };
