@@ -10,10 +10,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Texture.h"
+#include "Shaders/Shader.h"
 #include "Shapes/Cube.h"
 #include "Shapes/Triangle.h"
-#include "Helpers/Helper.h"
-#include "Shaders/Shader.h"
+
 
 const int width = 800;
 const int height = 600;
@@ -60,20 +61,27 @@ int main(void)
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+    
     unsigned int shaderProgram = Shader::CreateShaders(vertexPath,fragmentPath);
 
-    //--- Imatge 1
-    GLuint textureID = Helper::LoadTexture("Images/Image.jpg", false, shaderProgram);
+    GLuint textureID;
+    //--- Objecte 1
+    Texture::Texture("Images/Image.jpg", shaderProgram, false, textureID);
     Mesh cubMesh(Cube::vertices, sizeof(Cube::vertices) / sizeof(Cube::vertices[0]),
               Cube::indices, sizeof(Cube::indices) / sizeof(Cube::indices[0]), 
               textureID);
 
-    //--- Imatge 2
-    GLuint textureID2 = Helper::LoadTexture("Images/Monkey.png", true, shaderProgram);
+    //--- Objecte 2
+    Texture::Texture("Images/Monkey.png", shaderProgram, true, textureID);
     Mesh triangleMesh(Triangle::vertices, sizeof(Triangle::vertices) / sizeof(Triangle::vertices[0]),
               Triangle::indices, sizeof(Triangle::indices) / sizeof(Triangle::indices[0]), 
-              textureID2);
+              textureID);
+
+    //--- Objecte 3
+    Texture::Texture("Images/Image.jpg", shaderProgram, false, textureID);
+    Mesh cub2Mesh(Cube::vertices, sizeof(Cube::vertices) / sizeof(Cube::vertices[0]),
+              Cube::indices, sizeof(Cube::indices) / sizeof(Cube::indices[0]), 
+              textureID);
     
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     Camera ourCamera(width,height,glm::vec3(0.0f,0.0f,2.0f));
@@ -98,6 +106,14 @@ int main(void)
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model2));
         cubMesh.Draw(shaderProgram);
 
+        // Transformació per al segon mesh (dalt a la dreta)
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model3, glm::vec3(-0.75f, 0.75f, 0.0f)); // Moure a la cantonada superior dreta
+        model3 = glm::scale(model3, glm::vec3(0.5f, 0.5f, 0.5f));       // Escalar si cal per ajustar-lo
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model3));
+        cub2Mesh.Draw(shaderProgram);
+
+        //esferaMesh.Draw(shaderProgram);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
