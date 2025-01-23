@@ -9,20 +9,19 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Camera.h"
+#include "Mesh.h"
 #include "Shapes/Cube.h"
 #include "Shapes/Triangle.h"
 #include "Helpers/Helper.h"
+#include "Shaders/Shader.h"
 
 const int width = 800;
 const int height = 600;
 
+const char* vertexPath = "Shaders/vertex.glsl";
+const char* fragmentPath = "Shaders/fragment.glsl";
+
 int customColorId;
-
-std::string vertexShaderCode = Helper::ReadTextFile("Shaders/vertex.glsl"); //Guardem el resultat per no perdrel al assignar el punter a c_str()
-const char* vertexShaderSource = vertexShaderCode.c_str();
-
-std::string fragmentShaderCode = Helper::ReadTextFile("Shaders/fragment.glsl"); //Guardem el resultat per no perdrel al assignar el punter a c_str()
-const char* fragmentShaderSource = fragmentShaderCode.c_str();
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -62,139 +61,48 @@ int main(void)
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    unsigned int shaderProgram = Shader::CreateShaders(vertexPath,fragmentPath);
 
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    //--- Imatge 1
+    GLuint textureID = Helper::LoadTexture("Images/Image.jpg", false, shaderProgram);
+    Mesh cubMesh(Cube::vertices, sizeof(Cube::vertices) / sizeof(Cube::vertices[0]),
+              Cube::indices, sizeof(Cube::indices) / sizeof(Cube::indices[0]), 
+              textureID);
 
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    unsigned int VAO;
-    unsigned int VBO;
-    unsigned int IBO;
+    //--- Imatge 2
+    GLuint textureID2 = Helper::LoadTexture("Images/Monkey.png", true, shaderProgram);
+    Mesh triangleMesh(Triangle::vertices, sizeof(Triangle::vertices) / sizeof(Triangle::vertices[0]),
+              Triangle::indices, sizeof(Triangle::indices) / sizeof(Triangle::indices[0]), 
+              textureID2);
     
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &IBO);
-
-    
-    Triangle* shape = new Triangle();
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(shape->vertices), shape->vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(shape->indices), shape->indices, GL_STATIC_DRAW);
-    
-    GLsizei stride = 8 * sizeof(float);
-    void* offsetColor = (void*)(3 * sizeof(float));
-    void* offsetTexture = (void*)(6 * sizeof(float));
-
-    glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, stride, (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1,3, GL_FLOAT, GL_FALSE, stride, offsetColor);
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
-    glEnableVertexAttribArray(2);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // Texturas --------------------------------------------------------------------------------------------------------
-    int width, height, pixelSize;
-
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* image = stbi_load("Images/Image.jpg", &width, &height, &pixelSize, 0);
-
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    //Com es comporta el suavitzat de entre pixels
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    if (image)
-    {
-        if (pixelSize == 4)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-        else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,0, GL_RGB, GL_UNSIGNED_BYTE, image);
-    }
-    else
-    {
-        std::cout << "Failed to load image" << std::endl;
-    }
- 
-    stbi_image_free(image);
-    glBindTexture(GL_TEXTURE_2D, 0); //Evitem que la imatge es modifiqui
-
-    //UNIFORM
-    GLuint texUniform = glGetUniformLocation(shaderProgram, "tex0");
-    glUseProgram(shaderProgram);
-    glUniform1i(texUniform, 0);
-
-    glEnable(GL_DEPTH_TEST);
-
     Camera ourCamera(width,height,glm::vec3(0.0f,0.0f,2.0f));
     
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(shaderProgram);
 
         ourCamera.CameraMatrix(45.f,0.1f,100.0f, shaderProgram, "cameraMatrix");
         ourCamera.CameraInput(window);
 
-        // glm::mat4 model = glm::mat4(1.0f);
-        // glm::mat4 view = glm::mat4(1.0f);
-        // glm::mat4 projection = glm::mat4(1.0f);
-        //
-        // //Cambiar rotación a DeltaTime
-        // model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, -1.0f, 0.0f));
-        // view = glm::translate(view, glm::vec3(0.0f,  -0.3f, -3.0f));    // Mou x = Dreta/Esq y = Dalt/Baix z = Aprop/Lluny
-        //
-        // //Configuración de la camara
-        // projection = glm::perspective(glm::radians(45.0f),(float)width/(float)height,0.1f,100.0f);
-        //
-        // GLint modelUniform = glGetUniformLocation(shaderProgram, "model");
-        // glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(model));
-        //
-        // GLint viewUniform = glGetUniformLocation(shaderProgram, "view");
-        // glUniformMatrix4fv(viewUniform, 1, GL_FALSE, glm::value_ptr(view));
-        //
-        // GLint projectionUniform = glGetUniformLocation(shaderProgram, "projection");
-        // glUniformMatrix4fv(projectionUniform, 1, GL_FALSE, glm::value_ptr(projection));
-        
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureID);        
-        
-        glBindVertexArray(VAO);
-    
-        glDrawElements(GL_TRIANGLES, sizeof(shape->indices) / sizeof(shape->indices[0]), GL_UNSIGNED_INT, 0);
+        // Transformació per al primer mesh (centrat)
+        glm::mat4 model1 = glm::mat4(1.0f); // Identitat
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model1));
+        triangleMesh.Draw(shaderProgram);
+
+        // Transformació per al segon mesh (dalt a la dreta)
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2, glm::vec3(0.75f, 0.75f, 0.0f)); // Moure a la cantonada superior dreta
+        model2 = glm::scale(model2, glm::vec3(0.5f, 0.5f, 0.5f));       // Escalar si cal per ajustar-lo
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model2));
+        cubMesh.Draw(shaderProgram);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
-    
     glfwTerminate();
     return 0;
 }

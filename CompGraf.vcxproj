@@ -239,6 +239,8 @@
       <AdditionalIncludeDirectories>D:\Documents\Master_UE\Computacion_grafica\CompGraf\Dependencies\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -635,6 +637,8 @@
     <ClInclude Include="Dependencies\include\KHR\khrplatform.h" />
     <ClInclude Include="Dependencies\include\STB\stb_image.h" />
     <ClInclude Include="Helpers\Helper.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Shaders\Shader.h" />
     <ClInclude Include="Shapes\Cube.h" />
     <ClInclude Include="Shapes\Triangle.h" />
   </ItemGroup>
