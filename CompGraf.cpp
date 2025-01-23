@@ -9,110 +9,21 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Camera.h"
+#include "Shapes/Cube.h"
+#include "Shapes/Triangle.h"
+#include "Helpers/Helper.h"
 
 const int width = 800;
 const int height = 600;
 
 int customColorId;
 
-const char* vertexShaderSource =
-"#version 330 core                      \n"
-"                                       \n"
-"layout (location = 0) in vec3 aPos;    \n"
-"layout (location = 1) in vec3 aColor;  \n"
-"layout (location = 2) in vec2 aTex;    \n"
-"                                       \n"
-"out vec3 ourColor;                     \n"
-"out vec2 texCoord;                     \n"
-"uniform mat4 model;                    \n"
-"uniform mat4 view;                     \n"
-"uniform mat4 projection;               \n"
-"uniform mat4 cameraMatrix;             \n"
-"                                       \n"
-"void main()                            \n"
-"{                                      \n"
-"    gl_Position = cameraMatrix * vec4(aPos,1.0);  \n"
-"    ourColor = aColor;                 \n"
-"    texCoord = aTex;                   \n"
-"}                                      \n\0";
+std::string vertexShaderCode = Helper::ReadTextFile("Shaders/vertex.glsl"); //Guardem el resultat per no perdrel al assignar el punter a c_str()
+const char* vertexShaderSource = vertexShaderCode.c_str();
 
-const char* fragmentShaderSource =
-"#version 330 core                      \n"
-"                                       \n"
-"out vec4 FragColor;                    \n"
-"in vec3 ourColor;                      \n"
-"in vec2 texCoord;                      \n"
-"uniform sampler2D tex0;                \n"
-"void main()                            \n"
-"{                                      \n"
-"    FragColor = texture(tex0, texCoord);\n"
-"};                                     \n\0";
+std::string fragmentShaderCode = Helper::ReadTextFile("Shaders/fragment.glsl"); //Guardem el resultat per no perdrel al assignar el punter a c_str()
+const char* fragmentShaderSource = fragmentShaderCode.c_str();
 
-
-float vertices[] = {
-    //Coordenades           //Color            //Textura
-    //Fons
-    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f,-1.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f,-1.0f,
-     0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.3f, 1.0f, 0.0f, 0.0f, 1.0f,
-    //Frontal
-    -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f,-1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f,-1.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 1.0f, 0.3f, 0.0f, 0.0f, 1.0f,
-    //Esquerra
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f,-1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f,-1.0f,
-    //Dreta
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 1.0f, 0.0f, -1.0f,
-    //Base
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,-1.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f,-1.0f,
-     0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-    //Sostre
-    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f,-1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 0.3f, 0.3f, 0.3f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.3f, 0.3f, 0.3f, 0.0f,-1.0f,
-};
-unsigned int indices[] = {
-    0, 1, 2,    //Fons
-    3, 4, 5,
-
-    6, 7, 8,    //Frontal
-    9, 10, 11,
-    
-    12,13,14,   //Esquerra
-    15,16,17,
-    
-    18,19,20,   //Dreta
-    21,22,23,
-    
-    24,25,26,   //Base
-    27,28,29,
-    
-    30,31,32,   //Sostre
-    33,34,35,
-};
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -131,7 +42,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(width, height, "Grafica", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Computacio Grafica", nullptr, nullptr);
 
     if (window == nullptr)
     {
@@ -171,13 +82,15 @@ int main(void)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &IBO);
+
     
+    Triangle* shape = new Triangle();
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(shape->vertices), shape->vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(shape->indices), shape->indices, GL_STATIC_DRAW);
     
     GLsizei stride = 8 * sizeof(float);
     void* offsetColor = (void*)(3 * sizeof(float));
@@ -199,7 +112,7 @@ int main(void)
     // Texturas --------------------------------------------------------------------------------------------------------
     int width, height, pixelSize;
 
-    //stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* image = stbi_load("Images/Image.jpg", &width, &height, &pixelSize, 0);
 
     GLuint textureID;
@@ -272,7 +185,7 @@ int main(void)
         
         glBindVertexArray(VAO);
     
-        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(shape->indices) / sizeof(shape->indices[0]), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
