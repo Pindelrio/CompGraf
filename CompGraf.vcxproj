@@ -239,6 +239,7 @@
       <AdditionalIncludeDirectories>D:\Documents\Master_UE\Computacion_grafica\CompGraf\Dependencies\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Lights\Lights.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="stb.cpp" />
@@ -247,9 +248,11 @@
   <ItemGroup>
     <Content Include="Dependencies\include\glm\CMakeLists.txt" />
     <Content Include="Dependencies\lib\glfw3.lib" />
+    <Content Include="Images\Brick_Texture.jpg" />
     <Content Include="Images\Image.jpg" />
     <Content Include="Images\Monkey.png" />
     <Content Include="Shaders\fragment.glsl" />
+    <Content Include="Shaders\lightFragment.glsl" />
     <Content Include="Shaders\vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
@@ -638,6 +641,7 @@
     <ClInclude Include="Dependencies\include\KHR\khrplatform.h" />
     <ClInclude Include="Dependencies\include\STB\stb_image.h" />
     <ClInclude Include="Helpers\Helper.h" />
+    <ClInclude Include="Lights\Lights.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Shaders\Shader.h" />
     <ClInclude Include="Shapes\Cube.h" />

@@ -11,13 +11,15 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Lights/Lights.h"
 #include "Shaders/Shader.h"
 #include "Shapes/Cube.h"
+#include "Shapes/Sphere.h"
 #include "Shapes/Triangle.h"
 
 
-const int width = 800;
-const int height = 600;
+const int width = 1024;
+const int height = 720;
 
 const char* vertexPath = "Shaders/vertex.glsl";
 const char* fragmentPath = "Shaders/fragment.glsl";
@@ -61,18 +63,24 @@ int main(void)
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+
     unsigned int shaderProgram = Shader::CreateShaders(vertexPath,fragmentPath);
+
+    // LIGHTS
+    Lights::CreateSpotLight(shaderProgram);
+    glm::vec3 pointLightColor(1.0f,1.0f,1.0f);
+    Lights::CreatePointLight(shaderProgram, pointLightColor);
+    //-------------------------------
 
     GLuint textureID;
     //--- Objecte 1
-    Texture::Texture("Images/Image.jpg", shaderProgram, false, textureID);
+    Texture::Texture("Images/Monkey.png", shaderProgram, false, textureID);
     Mesh cubMesh(Cube::vertices, sizeof(Cube::vertices) / sizeof(Cube::vertices[0]),
               Cube::indices, sizeof(Cube::indices) / sizeof(Cube::indices[0]), 
               textureID);
 
     //--- Objecte 2
-    Texture::Texture("Images/Monkey.png", shaderProgram, true, textureID);
+    Texture::Texture("Images/Brick_Texture.jpg", shaderProgram, true, textureID);
     Mesh triangleMesh(Triangle::vertices, sizeof(Triangle::vertices) / sizeof(Triangle::vertices[0]),
               Triangle::indices, sizeof(Triangle::indices) / sizeof(Triangle::indices[0]), 
               textureID);
@@ -94,6 +102,10 @@ int main(void)
         ourCamera.CameraMatrix(45.f,0.1f,100.0f, shaderProgram, "cameraMatrix");
         ourCamera.CameraInput(window);
 
+        //Dynamic Spot lights
+        Lights::DynamicColorSpotLight(shaderProgram);
+        
+
         // Transformació per al primer mesh (centrat)
         glm::mat4 model1 = glm::mat4(1.0f); // Identitat
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model1));
@@ -106,14 +118,14 @@ int main(void)
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model2));
         cubMesh.Draw(shaderProgram);
 
-        // Transformació per al segon mesh (dalt a la dreta)
+    
+        // Transformació per al tercer mesh (baix a la esq)
         glm::mat4 model3 = glm::mat4(1.0f);
-        model3 = glm::translate(model3, glm::vec3(-0.75f, 0.75f, 0.0f)); // Moure a la cantonada superior dreta
-        model3 = glm::scale(model3, glm::vec3(0.5f, 0.5f, 0.5f));       // Escalar si cal per ajustar-lo
+        model3 = glm::translate(model3, glm::vec3(-0.75f, -0.75f, 0.0f)); 
+        model3 = glm::scale(model3, glm::vec3(0.6f, 0.6f, 0.6f));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model3));
         cub2Mesh.Draw(shaderProgram);
 
-        //esferaMesh.Draw(shaderProgram);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

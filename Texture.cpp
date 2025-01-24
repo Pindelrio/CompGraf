@@ -44,6 +44,10 @@ Texture::Texture(char const* path, unsigned int shaderProgram, bool flip, GLuint
     glUseProgram(shaderProgram);
     glUniform1i(texUniform, 0);
     glEnable(GL_DEPTH_TEST);
+
+    GLint lightColorLocation = glGetUniformLocation(shaderProgram, "lightColor");
+    glUseProgram(shaderProgram); // Activa el programa de shaders
+    glUniform4f(lightColorLocation, 1.0f, 0.0f, 0.0f, 1.0f); // RGBA
     
     outTextureID = textureID;
 }

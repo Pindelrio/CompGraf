@@ -15,9 +15,10 @@ Mesh::Mesh(const float* vertices, size_t vertexCount, const unsigned int* indice
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
     
-    GLsizei stride = 8 * sizeof(float);
+    GLsizei stride = 11 * sizeof(float);
     void* offsetColor = (void*)(3 * sizeof(float));
     void* offsetTexture = (void*)(6 * sizeof(float));
+    void* offsetLight = (void*)(8 * sizeof(float));
     
     glVertexAttribPointer(0,3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
@@ -27,7 +28,10 @@ Mesh::Mesh(const float* vertices, size_t vertexCount, const unsigned int* indice
     
     glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, stride, offsetTexture);
     glEnableVertexAttribArray(2);
-    
+
+    glVertexAttribPointer(3,3, GL_FLOAT, GL_FALSE, stride, offsetLight);
+    glEnableVertexAttribArray(3);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     indexSize = indexCount;
